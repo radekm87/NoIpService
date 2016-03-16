@@ -60,7 +60,7 @@ public class Main
 						getMyIpFromAnotherWWW();
 					} catch (Exception e)
 					{
-						log.println("******** Wystapil b³¹d METODA ALTERNATYWNA!!!!!!" + e.getMessage());
+						log.println("******** Wystapil bÅ‚Ä…d METODA ALTERNATYWNA!!!!!!" + e.getMessage());
 						log.println("Zdarzenie z godziny: " + DateTime.now().toString("yyyy-MM-dd HH:mm"));
 						e.printStackTrace(log);
 						throw e;
@@ -89,7 +89,7 @@ public class Main
 				howException++;
 				if (!isError)
 				{
-					log.println("******** Wystapil b³¹d!!!!!!" + e.getMessage());
+					log.println("******** Wystapil bÅ‚Ä…d!!!!!!" + e.getMessage());
 					log.println("Zdarzenie z godziny: " + DateTime.now().toString("yyyy-MM-dd HH:mm"));
 					e.printStackTrace(log);
 				}
@@ -157,7 +157,7 @@ public class Main
 
 		if (resultCode != 200 || !(result.toString().contains("nochg") || result.toString().contains("good")))
 		{
-			throw new ClientProtocolException("Otrzymano status b³edu z noip.me. Nie aktualizuje informacji w pliku.");
+			throw new ClientProtocolException("Otrzymano status bÅ‚Ä™du z noip.me. Nie aktualizuje informacji w pliku.");
 		}
 	}
 
