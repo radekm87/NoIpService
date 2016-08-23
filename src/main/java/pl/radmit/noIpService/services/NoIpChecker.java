@@ -1,10 +1,9 @@
-package pl.radmit.noIpService;
+package pl.radmit.noIpService.services;
 
 import pl.radmit.log.Logger;
 import pl.radmit.log.NoIpLoggerConfiguratorImpl;
 import pl.radmit.noIpService.models.NoIpAccount;
 import pl.radmit.noIpService.models.NoIpConfiguration;
-import pl.radmit.noIpService.services.NoIpApiService;
 
 import java.io.IOException;
 
@@ -97,5 +96,7 @@ public class NoIpChecker implements Runnable {
 
         NoIpAccount account = new NoIpAccount(configuration.getUsername(), configuration.getPassword(), configuration.getHostname());
         this.apiService = new NoIpApiService(account, logger);
+
+        logger.log("Wątek NoIpChecker skonfigurowany poprawnie.");
     }
 }

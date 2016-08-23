@@ -10,7 +10,12 @@ import java.util.Calendar;
 public class NoIpLoggerConfiguratorImpl implements ILoggerConfigurator {
     @Override
     public File getLogPath() {
-        return new File("NoIpLogFile"
+        File logsDir = new File("logs");
+        if (!logsDir.exists()) {
+            logsDir.mkdir();
+        }
+
+        return new File("logs/NoIpLogFile"
                 + new SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime()));
     }
 }
