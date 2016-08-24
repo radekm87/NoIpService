@@ -20,6 +20,11 @@ public class NoIpChecker implements Runnable {
 
     private NoIpApiService apiService;
 
+    public void setApiServiceAndLogger(NoIpApiService apiService, Logger loger) {
+        this.apiService = apiService;
+        this.logger = loger;
+    }
+
     @Override
     public void run() {
         configureThread();
@@ -27,35 +32,40 @@ public class NoIpChecker implements Runnable {
 
         try {
             while (isRun) {
-                try {
-                    if (!isFirstRun) {
-                        Thread.sleep(TIME_SLEEP);
-                    }
-
-                    String actualIp = getMyCurrentIp();
-
-                    String savedIp = apiService.getLastSavedIpFromFile(actualIp); // aktualne ip na wypadek pierwszego odczytu z pliku
-                    apiService.ifIpChangeThenUpdateIpInNoipAndFile(savedIp, actualIp);
-
-                    // byl error, ale juz jest ok to resetujemy ustawienia
-                    if (isError) {
-                        isError = false;
-                        howException = 0;
-                    }
-                    isFirstRun = false;
-                } catch (Exception e) {
-                    howException++;
-                    if (!isError) {
-                        logger.log("******** Wystapil błąd!!!!!!" + e.getMessage());
-                        e.printStackTrace(logger.getPrintStream());
-                    }
-                    isError = true;
-                }
+                isFirstRun = runOne(isFirstRun);
             }
         } finally {
             logger.log("   ***** Exception i wyszło poza pętle - zamykam wątek!!!");
         }
 
+    }
+
+    public boolean runOne(boolean isFirstRun) {
+        try {
+            if (!isFirstRun) {
+                Thread.sleep(TIME_SLEEP);
+            }
+
+            String actualIp = getMyCurrentIp();
+
+            String savedIp = apiService.getLastSavedIpFromFile(actualIp); // aktualne ip na wypadek pierwszego odczytu z pliku
+            apiService.ifIpChangeThenUpdateIpInNoipAndFile(savedIp, actualIp);
+
+            // byl error, ale juz jest ok to resetujemy ustawienia
+            if (isError) {
+                isError = false;
+                howException = 0;
+            }
+            isFirstRun = false;
+        } catch (Exception e) {
+            howException++;
+            if (!isError) {
+                logger.log("******** Wystapil błąd!!!!!!" + e.getMessage());
+                e.printStackTrace(logger.getPrintStream());
+            }
+            isError = true;
+        }
+        return isFirstRun;
     }
 
     private String getMyCurrentIp() throws IOException {
@@ -71,7 +81,7 @@ public class NoIpChecker implements Runnable {
             }
             howException = 0; // resetujemy licznik
         }
-        if (howException >= 5) {
+        else if (howException >= 5) {
             logger.log("Nie uzyskano IP z serwisu alternatywnego wiec wracam do serwisu glownego: ");
             howException = 0;
             isError = false;

@@ -4,53 +4,31 @@ import org.mockito.Mockito;
 import pl.radmit.log.Logger;
 import pl.radmit.noIpService.models.NoIpAccount;
 import pl.radmit.noIpService.services.NoIpApiService;
+import pl.radmit.noIpService.services.NoIpChecker;
 
 import java.io.IOException;
 
+/**
+ * Created by rmorawski on 24.08.16.
+ */
 public class NoIpTest {
 
     @Test
     public void getMyIpFromPrimaryUrl() throws IOException {
-        NoIpAccount noIpAccount = Mockito.mock(NoIpAccount.class);
+        NoIpApiService apiService = Mockito.mock(NoIpApiService.class);
         Logger logger = Mockito.mock(Logger.class);
 
-        NoIpApiService apiService = new NoIpApiService(noIpAccount, logger);
-        String myIp = apiService.getMyIpActualFromPrimaryUrl();
+        Mockito.when(apiService.getMyIpActualFromPrimaryUrl()).thenReturn("8.8.8.8");
+        Mockito.when(logger.getPrintStream()).thenReturn(System.out);
 
-        Assert.assertTrue(!myIp.isEmpty());
+        NoIpChecker ipChecker = new NoIpChecker();
+        ipChecker.setApiServiceAndLogger(apiService, logger);
+        ipChecker.runOne(true);
+
+        Mockito.when(apiService.getMyIpActualFromPrimaryUrl()).thenThrow(NullPointerException.class);
+        ipChecker.runOne(true);
+        ipChecker.runOne(true);
+        ipChecker.runOne(true);
+        ipChecker.runOne(true);
     }
-
-    @Test
-    public void getMyIpFromSecondaryUrl() throws IOException {
-        NoIpAccount noIpAccount = Mockito.mock(NoIpAccount.class);
-        Logger logger = Mockito.mock(Logger.class);
-
-        NoIpApiService apiService = new NoIpApiService(noIpAccount, logger);
-        String myIp = apiService.getMyIpActualFromSecondaryUrl();
-
-        Assert.assertTrue(!myIp.isEmpty());
-    }
-
-    @Test
-    public void getLastSavedIpFromFile() throws IOException {
-        NoIpAccount noIpAccount = Mockito.mock(NoIpAccount.class);
-        Logger logger = Mockito.mock(Logger.class);
-
-        NoIpApiService apiService = new NoIpApiService(noIpAccount, logger);
-        String myIp = apiService.getLastSavedIpFromFile("8.8.8.8");
-
-        Assert.assertTrue(!myIp.isEmpty());
-    }
-
-//    @Test
-//    public void ifIpChangeThenUpdateIpInNoipAndFile() throws IOException {
-//        NoIpAccount noIpAccount = Mockito.mock(NoIpAccount.class);
-//        Logger logger = Mockito.mock(Logger.class);
-//
-//        NoIpApiService apiService = new NoIpApiService(noIpAccount, logger);
-//        String myIp = apiService.ifIpChangeThenUpdateIpInNoipAndFile("8.8.8.8");
-//
-//        Assert.assertTrue(!myIp.isEmpty());
-//    }
-
 }
