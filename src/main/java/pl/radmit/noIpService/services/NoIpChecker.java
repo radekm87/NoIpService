@@ -80,8 +80,7 @@ public class NoIpChecker implements Runnable {
                 throw e;
             }
             howException = 0; // resetujemy licznik
-        }
-        else if (howException >= 5) {
+        } else if (howException >= 5) {
             logger.log("Nie uzyskano IP z serwisu alternatywnego wiec wracam do serwisu glownego: ");
             howException = 0;
             isError = false;
@@ -93,6 +92,7 @@ public class NoIpChecker implements Runnable {
     }
 
     private void configureThread() {
+        logger.log("Rozpoczynam konfiguracje watku NoIpChecker...");
         this.logger = new Logger(new NoIpLoggerConfiguratorImpl());
         this.TIME_SLEEP = 240000; // 4min // 300000; // 5 minut
         this.isRun = true;

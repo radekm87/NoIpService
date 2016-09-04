@@ -4,8 +4,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 import pl.radmit.log.Logger;
 import pl.radmit.noIpService.models.IpFile;
@@ -15,11 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
 /**
@@ -27,11 +21,11 @@ import java.util.Base64;
  */
 public class NoIpApiService {
 
-    private static final String IP_URL_PRIMARY = "";
-    private static final String IP_URL_SECONDARY = "";
+    private static final String IP_URL_PRIMARY = "http://checkip.amazonaws.com/";
+    private static final String IP_URL_SECONDARY = "http://ip1.dynupdate.no-ip.com/";
 
-    private static final String API_URL = "";
-    private static final String API_PATH = "";
+    private static final String API_URL = "http://dynupdate.no-ip.com/nic/update?hostname=";
+    private static final String API_PATH = "&myip=";
     private static final String USER_AGENT = "RADMIT Update Client v1.0 radekm87@gmail.com";
 
     private NoIpAccount account;
@@ -43,13 +37,15 @@ public class NoIpApiService {
     }
 
     public String getMyIpActualFromPrimaryUrl() throws IOException {
-        URL urlIp = new URL("http://checkip.amazonaws.com/");
+        URL urlIp = new URL(IP_URL_PRIMARY);
         return readIpFromWww(urlIp);
     }
+
     public String getMyIpActualFromSecondaryUrl() throws IOException {
-        URL urlIp = new URL("http://ip1.dynupdate.no-ip.com/");
+        URL urlIp = new URL(IP_URL_SECONDARY);
         return readIpFromWww(urlIp);
     }
+
     public String getLastSavedIpFromFile(String actualIp) {
         IpFile cfgFile = new IpFile();
         String savedIp = cfgFile.readIpFromFile();
@@ -58,6 +54,7 @@ public class NoIpApiService {
         }
         return savedIp;
     }
+
     public void ifIpChangeThenUpdateIpInNoipAndFile(String oldIp, String newIp) throws IOException {
         if (!newIp.equals(oldIp)) {
             sendNewIpToNoIpServer(oldIp, newIp);
@@ -75,7 +72,7 @@ public class NoIpApiService {
     /*
     Uzywane do testow
      */
-    public void sendNewIpToNoIpServer(String savedIp, String actualIp, HttpClient client) throws IOException{
+    public void sendNewIpToNoIpServer(String savedIp, String actualIp, HttpClient client) throws IOException {
         logger.log("Stare ip to: " + savedIp + " a nowe to: " + actualIp
                 + " wiec chce zaktualizowac w NOIP");
 
@@ -102,9 +99,8 @@ public class NoIpApiService {
         }
     }
 
-    private HttpGet prepareHttpGetRequest (String actualIp) throws MalformedURLException {
-        URL url = new URL("http://dynupdate.no-ip.com/nic/update?hostname=" + account.getHostname() + "&myip="
-                + actualIp);
+    private HttpGet prepareHttpGetRequest(String actualIp) throws MalformedURLException {
+        URL url = new URL(API_URL + account.getHostname() + API_PATH + actualIp);
 
         HttpGet request = new HttpGet(url.toString());
 
@@ -120,9 +116,9 @@ public class NoIpApiService {
         return request;
     }
 
-    private void sendNewIpToNoIpServer(String savedIp, String actualIp) throws  IOException{
+    private void sendNewIpToNoIpServer(String savedIp, String actualIp) throws IOException {
         HttpClient client = HttpClientBuilder.create().build();
-        sendNewIpToNoIpServer(savedIp, actualIp,client);
+        sendNewIpToNoIpServer(savedIp, actualIp, client);
     }
 
     public void writeNewIpToCfgFile(String myIp) {
