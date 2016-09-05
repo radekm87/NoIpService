@@ -92,7 +92,6 @@ public class NoIpChecker implements Runnable {
     }
 
     private void configureThread() {
-        logger.log("Rozpoczynam konfiguracje watku NoIpChecker...");
         this.logger = new Logger(new NoIpLoggerConfiguratorImpl());
         this.TIME_SLEEP = 240000; // 4min // 300000; // 5 minut
         this.isRun = true;
