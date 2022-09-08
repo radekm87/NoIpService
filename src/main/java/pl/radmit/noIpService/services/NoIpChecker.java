@@ -28,23 +28,22 @@ public class NoIpChecker implements Runnable {
     @Override
     public void run() {
         configureThread();
-        boolean isFirstRun = true; // za pierwszym wejsciem nie czekamy na sprawdzenie ip
 
         try {
             while (isRun) {
-                isFirstRun = runOne(isFirstRun);
+                runOne();
             }
+        } catch (InterruptedException e) {
+            logger.log(e.getMessage());
+            throw new RuntimeException(e);
         } finally {
             logger.log("   ***** Exception i wyszło poza pętle - zamykam wątek!!!");
         }
 
     }
 
-    public boolean runOne(boolean isFirstRun) {
+    public void runOne() throws InterruptedException {
         try {
-            if (!isFirstRun) {
-                Thread.sleep(TIME_SLEEP);
-            }
 
             String actualIp = getMyCurrentIp();
 
@@ -56,7 +55,6 @@ public class NoIpChecker implements Runnable {
                 isError = false;
                 howException = 0;
             }
-            isFirstRun = false;
         } catch (Exception e) {
             howException++;
             if (!isError) {
@@ -64,8 +62,9 @@ public class NoIpChecker implements Runnable {
                 e.printStackTrace(logger.getPrintStream());
             }
             isError = true;
+        } finally {
+            Thread.sleep(TIME_SLEEP);
         }
-        return isFirstRun;
     }
 
     private String getMyCurrentIp() throws IOException {
